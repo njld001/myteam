@@ -15,9 +15,9 @@
 
 ####修改E:\MAVEN\apache-maven-3.2.1\conf\settings.xml文件
 
-#####搜索[localRepository]在它下面追加一行[d:/MAVEN/m2/repository是你本地仓库地址]
+#####搜索[localRepository]在它下面追加一行[E:/MAVEN/m2/repository是你本地仓库地址]
 
-	<localRepository>d:/MAVEN/m2/repository</localRepository>
+	<localRepository>E:/MAVEN/m2/repository</localRepository>
 
 - - -
 
