@@ -7,6 +7,7 @@
 	E:\MAVEN\nexus-2.5.1\nexus-2.5.1-01\bin\jsw\windows-x86-64\install-nexus.bat
 	windows-x86-64是你的系统32位系统选windows-x86-32
 	在运行下输入services.msc 弹出服务窗口将nexus服务改成自动
+	正常启动起来输入网址http://localhost:8081/nexus 用户名admin密码admin123
 	错误情况请参照E:\MAVEN\nexus-2.5.1\nexus-2.5.1-01\logs\wrapper.log文件的内容进行 修改
 
 
