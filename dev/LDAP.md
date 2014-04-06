@@ -19,7 +19,7 @@
 LDAP
 
  如果你以前从来没有使用过LDAP，你可能想知道它到底是什么。我们通过一个Apache Directory Server 1.5的截图作为LDAP模式的例子进行介绍。   
-![](http://localhost/pic/1.png)
+![](pic/ldap-pic/1.png)
 
 让我们从一个特定用户Albert Einstein（截图中高亮显示）的条目开始，我们可以看到Mr. Einstein的组织成员信息可以从他的树节点往上移动看到。我们可以看到einstein是组织单元（organizational unit，ou）users的成员，而组织单元本身是域example.com的一部分（截屏中显示的dc代表的域组件“domain component”）。在此之前的是LDAP树本身的组织机构元素（DIT和Root DSE），这些现在与我们无关。用户aeinstein在LDAP结构中有其语义且意义明确——你可以想象一个巨大组织更复杂的等级结构也能够很容易的说明其组织机构和部门的边界。
 一个叶子节点在树上从上到下的路径形成了包含所有参与节点的字符串，如Mr. Einstein的节点路径为：
@@ -40,7 +40,7 @@ LDAP具有很丰富的标准模式（schema），涵盖了可用的LDAP对象类
 在上一节中，我们了解到LDAP中的每个条目都会有一个标识名，它在树上唯一标识节点。DN有一系列的属性组成，其中一个（或更多）用来标识树上的用DN代表的路径。因为DN中路径的每一部分都代表一个LDAP属性，所以你能够通过定义良好的LDAP模式和类对象来确定DN中每个属性的含义。
 我们在以下的表格中，列出了一些常见的属性和它们的含义。这些属性是用来作为组织相关的属性——一意味着它们一般用来定义LDAP树的组织机构——并按照结构上从上到下的顺序，正如你通常在LDAP中会见到的那样。
 
-![图表](http://localhost/pic/2.png)
+![](pic/ldap-pic/2.png)
 
   要记住的是有上百个标准的LDAP属性——上面只是其中的一小部分，当你与一个完整LDAP集成的话会看到它们。但是表中的这些属性是目录树中组织相关的属性，当你配置Spring Security与LDAP交互的时候可能会用来形成各种查询表达式或匹配符。
 
@@ -100,14 +100,15 @@ l  为了应用以后用到，从LDAP条目中预先加载用户信息到自定�
 ####认证用户凭证
 
 第一步，通过织入AuthenticationManager的自定义认证提供者与LDAP目录进行认证。o.s.s.ldap.authentication.LdapAuthenticationProvider将用户提供的凭证与LDAP目录进行校验，如下图所示：
-![](http://localhost/pic/3.png)
+![](pic/ldap-pic/3.png)
 
 我们可以看到o.s.s.ldap.authentication.LdapAuthenticator接口定义了一个代理从而允许提供者以自定义的方式认证请求。在这里我们明确配置的是o.s.s.ldap.authentication.BindAuthenticator，它会尝试使用用户的凭证绑定（登录）LDAP服务器，就像用户本身尝试建立连接。对嵌入式的服务器来说，这对于我们的认证要求是足够的，但是，外部的LDAP服务器在用户绑定LDAP目录上可能要求更严格。幸运的是，还有一种替代的认证方式，我们将会在本章稍后介绍。
 正如图中所标注的那样，记住查找是在<ldap-server>引用的manager-dn属性所创建的LDAP上下文中进行的。对于嵌入式的服务器，我们没有使用这个信息，但是对于外部的服务器引用，除非提供manager-dn，否则的话将会进行匿名绑定。为了保持目录中公开访问信息的限制，通常需要合法的凭证来进行LDAP目录的搜索，这样的话，manager-dn在现实世界场景中基本上就是必需的了。manager-dn代表了用户的全DN，基于合法的访问绑定目录并进行查找
 ####确定用户的角色
 
 在用户基于LDAP服务器成功认证之后，接下来必须要进行权限信息的确定。授权是通过安全实体的一系列角色定义的，LDAP认证过的用户角色确定如下图所示：
-![](http://localhost/pic/4.png)
+
+![](pic/ldap-pic/4.png)
  我们可以看到，用户在使用LDAP认证之后，LdapAuthenticationProvider委托给了一个LdapAuthoritiesPopulator。DefaultLdapAuthoritiesPopulator将会尝试在LDAP等级中另一个条目的同级或下级属性中查找认证用户的DN。（译者注：即在LDAP目录角色相关的条目中寻找当前用户，以确定用户的角色）
          查找用户角色分配的DN是通过group-search-base属性定义的——在我们的例子中，我们这样设置group-search-base="ou=Groups"。当一个用户的DN在group-search-base DN下面的条目中时，包含用户DN的条目中的一个属性将会作为这些用户的角色。
 【你可能注意到我们混合使用了属性的写法——在类流程图中使用了groupSearchBase，在文本中使用的是 group-search-base。这是有意的——文本中对应的是XML配置属性而图中指的是相关类的成员（属性）。他们的命名相似，但是在不同的上下文中（XML和Java）要适当调整。】
@@ -119,11 +120,11 @@ l  role-prefix：要拼到在group-role-attribute中发现值的前缀以产生S
 这对于新的开发人员可能会比较抽象和困难，因为这与我们基于JDBC的UserDetailsService实现有很大的区别。让我们以JBCP Pets LDAP目录中的ldapguest用户登录以了解其过程。
 用户的DN是uid=ldapguest,ou=Users,dc=jbcppets,dc=com而group-search-base被配置成了ou=Groups。对于这个ou的LDAP树展现如下：
 
-![](http://localhost/pic/5.png)
+![](pic/ldap-pic/5.png)
 
 我们可以看到在ou=Groups之下，有两个条目（cn=Admin和cn=User）。每个条目都具有objectClass: groupOfUniqueNames（你可能会记起我们在本章前面讨论过的对象类）。这种类型的LDAP对象允许多个DN值存储在这个条目下并进行逻辑分组。条目cn=User的属性列在下图中：
 
-![1111](http://localhost/pic/6.png)
+![](pic/ldap-pic/6.png)
 
 我们可以看到cn=User的uniqueMember属性用来标识这个组里面的LDAP用户。你也可能会发现uniqueMember的属性值就是对应用户的DN。
 现在再看角色搜索的逻辑的就很容易了。从ou=Groups (group-search-base)开始，Spring Security将会查找任何uniqueMember属性值与用户DN（group-search-filter）匹配的条目。当它找到匹配的条目，条目的cn值（group-role-attribute）——在本例中即为User，将会加上ROLE_ (role-prefix)前缀然后转换成大写字母组成用户的GrantedAuthority。一旦我们使用过它，再理解起来就容易一些了，不是吗？
@@ -140,8 +141,7 @@ o.s.s.ldap.userdetails.UserDetailsContextMapper来获取另外的细节信息来
 
 使用我们到现在为止配置的<ldap-authentication-provider>，LdapUserDetailsMapper将会使用用户LDAP条目中的信息填充UserDetails对象。
 
-
-![1111](http://localhost/pic/7.png)
+![](pic/ldap-pic/7.png)
 
 我们稍后将会看到UserDetailsContextMapper怎样配置才能从标准的LDAP person和inetOrgPerson中获取丰富的信息。使用基本的LdapUserDetailsMapper，仅仅能够存储用户名、密码以及GrantedAuthority。
 
@@ -154,4 +154,4 @@ o.s.s.ldap.userdetails.UserDetailsContextMapper来获取另外的细节信息来
 
 在JBCP Pets LDIF文件中，我们提供了许多的用户。在高级配置练习和自学中，以下的快速查询表可能会对你有所帮助。要注意的是除了userwithphone以外，所有用户的密码均为password。
 
-![1111](http://localhost/pic/8.png)
+![](pic/ldap-pic/8.png)
